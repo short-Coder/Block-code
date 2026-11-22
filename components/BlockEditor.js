@@ -17,14 +17,19 @@ function find(arr, id, par = null) {
 
 function sample() {
   return [
-    make('bg', ['#fff4d6']),
-    make('center'),
-    make('h1', ['ブロックでWebページ！'], [make('color', ['#d9480f'])]),
-    make('p', ['下のボタンを押してみて'], [make('size', ['18'])]),
-    make('button', ['押してね'], [
-      make('bg', ['#3b82f6']), make('color', ['#ffffff']), make('size', ['20']), make('radius', ['10']), make('pad', ['12']),
-      make('click', [], [make('settext', ['ありがとう！🎉']), make('setbg', ['#22a06b'])]),
+    make('theme', ['#3a7f3a', '#f5f7fb']),
+    make('header'),
+    make('hero'),
+    make('features', ['サービス'], [
+      make('card'),
+      make('card', ['業務効率化', 'AIとITの力で日々の業務を効率化します。']),
+      make('card', ['サポート体制', '導入後も安心の充実したサポートを提供します。']),
     ]),
+    make('about', ['会社概要'], [
+      make('para', ['私たちは最新の技術を活用し、お客様のビジネス課題を解決するIT企業です。']),
+      make('para', ['小規模企業から大企業まで、幅広い業種のシステム開発を手がけています。']),
+    ]),
+    make('footer'),
   ];
 }
 
@@ -39,19 +44,21 @@ function Block({ n, c }) {
     >
       <div className="head" onClick={(e) => { e.stopPropagation(); c.setSel(n.id); }}>
         {d.name}
-        {d.f.map(([t], i) => (
-          <input
-            key={i}
-            type={t === 'num' ? 'number' : t === 'color' ? 'color' : 'text'}
-            value={n.vals[i]}
-            draggable={false}
-            onMouseDown={(e) => e.stopPropagation()}
-            onChange={(e) => c.setField(n.id, i, e.target.value)}
-          />
+        {d.f.map(([t, , label], i) => (
+          <label key={i} className="fld">
+            {label && <span>{label}</span>}
+            <input
+              type={t === 'color' ? 'color' : 'text'}
+              value={n.vals[i]}
+              draggable={false}
+              onMouseDown={(e) => e.stopPropagation()}
+              onChange={(e) => c.setField(n.id, i, e.target.value)}
+            />
+          </label>
         ))}
         <button className="x" onClick={(e) => { e.stopPropagation(); c.remove(n.id); }}>×</button>
       </div>
-      {(d.k === 'el' || d.k === 'ev') && <Zone parId={n.id} items={n.ch} c={c} />}
+      {d.box && <Zone parId={n.id} items={n.ch} c={c} />}
     </div>
   );
 }
@@ -76,7 +83,7 @@ function Zone({ parId, items, c, root }) {
         c.insert(parId ?? null, i, spec);
       }}
     >
-      {root && !items.length && <div className="hint">ここにブロックを置こう。CSSブロックを直接置くとページ全体(body)に効くよ。</div>}
+      {root && !items.length && <div className="hint">ここにヘッダー・ヒーローなどの部品を置いてページを組み立てよう。</div>}
       {items.map((n) => <Block key={n.id} n={n} c={c} />)}
     </div>
   );
@@ -87,7 +94,7 @@ export default function BlockEditor() {
   const [sel, setSel] = useState(null);
   const [over, setOver] = useState(null);
   const [tab, setTab] = useState('pv');
-  const [title, setTitle] = useState('マイページ');
+  const [title, setTitle] = useState('IT企業公式サイト');
   const [msg, setMsg] = useState('左のブロックをドラッグ（またはタップ）して組み立てよう');
   const drag = useRef(null);
   const out = useMemo(() => generate(tree, title), [tree, title]);
